@@ -1,0 +1,55 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Department {
+  createdAt  DateTime   @default(now())
+  doctor     Doctor?    @relation(name: "DepartmentsOnDoctor", fields: [doctorId], references: [id])
+  doctorId   String?
+  doctors    Doctor[]   @relation(name: "DepartmentOnDoctors")
+  hospital   Hospital?  @relation(name: "DepartmentsOnHospital", fields: [hospitalId], references: [id])
+  hospitalId String?
+  hospitals  Hospital[] @relation(name: "DepartmentOnHospitals")
+  id         String     @id @default(cuid())
+  name       String?
+  updatedAt  DateTime   @updatedAt
+}
+
+model Hospital {
+  createdAt    DateTime     @default(now())
+  department   Department?  @relation(name: "DepartmentOnHospitals", fields: [departmentId], references: [id])
+  departmentId String?
+  departments  Department[] @relation(name: "DepartmentsOnHospital")
+  id           String       @id @default(cuid())
+  location     String?
+  name         String?
+  updatedAt    DateTime     @updatedAt
+}
+
+model Patient {
+  assignedDoctor String?
+  createdAt      DateTime @default(now())
+  disease        String?
+  doctors        Doctor[]
+  id             String   @id @default(cuid())
+  name           String?
+  updatedAt      DateTime @updatedAt
+}
+
+model Doctor {
+  createdAt      DateTime     @default(now())
+  department     Department?  @relation(name: "DepartmentOnDoctors", fields: [departmentId], references: [id])
+  departmentId   String?
+  departments    Department[] @relation(name: "DepartmentsOnDoctor")
+  id             String       @id @default(cuid())
+  name           String?
+  patient        Patient?     @relation(fields: [patientId], references: [id])
+  patientId      String?
+  specialization String?
+  updatedAt      DateTime     @updatedAt
+}
